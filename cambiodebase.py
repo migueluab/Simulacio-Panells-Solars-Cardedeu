@@ -1,43 +1,45 @@
 import numpy as np
 import datetime
+import matplotlib.pyplot as plt
 
 # --- 1. CONFIGURACIÓN ---
 # Coordenadas aproximadas de Cardedeu, Barcelona
 LAT_CARDEDEU = 41.639852  # Grados Norte
 LON_CARDEDEU = 2.359517   # Grados Este
+
 # Parámetros Astrodinámicos
-OBLICUIDAD = 23.4392911 # Grados Inclinación del eje terrestre (epsilon)
+OBLICUIDAD = 23.4392911 # Grados 
 LONGITUD_PERIHELIO = 102.9 # Grados 
+
 # Radio de la Tierra en km y Unidad Astronómica en km
 RADIO_TIERRA_KM = 6371.0
 UA_KM = 149597870.7
 RADIO_TIERRA_UA = RADIO_TIERRA_KM / UA_KM
 
-def calcular_posicion_sol_cardedeu(r_tierra_x, r_tierra_y, r_tierra_z, fecha_utc):  
+def calcular_posicion_sol_cardedeu(vector_origen, fecha_utc):  
 
     # --- PASO A: CORRECCIÓN DE PERIHELIO A VERNAL ---
+    # Matriz rotación Rz (sentido horario)
     rad_per = np.radians(LONGITUD_PERIHELIO)
-    Rz = np.array([ #senitdo horario
+    Rz = np.array([ 
         [np.cos(rad_per), -np.sin(rad_per), 0],
         [np.sin(rad_per),  np.cos(rad_per), 0],
         [0, 0, 1]
     ])
     
-    # Vector original (alineado al perihelio)
-    vector_origen = np.array([r_tierra_x, r_tierra_y, r_tierra_z])
-
     # Nuevo vector (alineado al equinoccio)
     r_sol = np.dot(Rz, vector_origen)
 
     # --- PASO B: ECLÍPTICA -> ECUATORIAL ---
+    # Matriz rotación Rx (sentido horario)
     rad_obl = np.radians(OBLICUIDAD)
-    Rx= np.array([ #senitdo horario
+    Rx= np.array([ 
         [1, 0, 0],
         [0, np.cos(rad_obl), -np.sin(rad_obl)],
         [0, np.sin(rad_obl),  np.cos(rad_obl)]
     ])
     
-    # Vector en coordenadas Ecuatoriales (x_eq, y_eq, z_eq)
+    # Vector en coordenadas Ecuatoriales 
     r_eq = np.dot(Rx, -r_sol)
 
     # --- PASO C.1: TIEMPO SIDEREO LOCAL  ---
@@ -61,58 +63,98 @@ def calcular_posicion_sol_cardedeu(r_tierra_x, r_tierra_y, r_tierra_z, fecha_utc
     Theta_L = Theta_L % 360.0
    
     # --- PASO C.2: ECUATORIAL -> TOPOCENTRICA ---
+    # Matriz rotación Rz (sentido antihorario)
     Theta_L = np.radians(Theta_L)
-    R_z = np.array([ #senitdo anihorario
+    R_z = np.array([ 
         [np.cos(Theta_L), np.sin(Theta_L), 0],
         [-np.sin(Theta_L), np.cos(Theta_L), 0],
         [0, 0, 1]
     ])
 
+    # Matriz rotación Ry (sentido antihorario)
     lat_rad = np.radians(LAT_CARDEDEU)
     co_latitud = (np.pi / 2) - lat_rad  # 90º - latitud
-    R_y = np.array([ #senitdo anihorario
+    R_y = np.array([ 
         [np.cos(co_latitud), 0, -np.sin(co_latitud)],
         [0, 1, 0],
         [np.sin(co_latitud), 0, np.cos(co_latitud)]
     ])  
 
-    # R_T = Ry · Rz · r - (0,0,r_t)
+    # Vector en coordenadas Topocentricas 
     vec_temp = np.dot(R_z, r_eq)
     vec_temp2 = np.dot(R_y, vec_temp)
-    r_topocentrico = vec_temp2 - np.array([0, 0, RADIO_TIERRA_UA])
+    r_topo = vec_temp2 - np.array([0, 0, RADIO_TIERRA_UA])
     
     # --- Paso D: OBTENCIÓN DE AZIMUT Y ALTURA ---
-    x_topo, y_topo, z_topo = r_topocentrico
-    distancia_topo = np.linalg.norm(r_topocentrico)
+    x_topo, y_topo, z_topo = r_topo
+    distancia_topo = np.linalg.norm(r_topo)
     
-    # Altura (h): Ángulo sobre el plano XY local
     h = np.degrees(np.arcsin(z_topo / distancia_topo))
-    # Azimut (A): Ángulo en el plano XY 
     az = np.degrees(np.arctan2(y_topo, x_topo))
     
-    # Ajuste final de Azimut para que 0=Norte, 90=Este (Estándar navegación)
+    # Ajuste final de Azimut para que 0=Norte, 90=Este (Navegación Estándar)
     az = (180 - az) % 360
     
     return az, h
 
-# --- EJEMPLO DE USO ---
+# --- EJEMPLO---
 # 1. Supón que estamos en el perihelio (3 de Enero, Tierra en eje X)
 # Tus coordenadas de la Tierra plotteada (en Unidades Astronómicas, por ejemplo)
-# NOTA: Deben estar alineadas tal que X apunte al perihelio.
 x_tierra = 1.0 
 y_tierra = 0.0
 z_tierra = 0.0
+vector_posicion = np.array([x_tierra, y_tierra, z_tierra])
 
-# 2. Fecha y hora en la que quieres mirar al cielo (UTC)
-# Ejemplo: 3 de Enero a las 8:00 UTC (9:00 hora local)
-fecha = datetime.datetime(2026, 1, 3, 8, 0, 0)
+# --- Configuración Inicial ---
+# Definimos el día local que queremos graficar (ej: 3 de Enero de 2026)
+dia_local = datetime.date(2026, 1, 3) 
+offset_horario = 1  # España en invierno es UTC+1 (En verano poner 2)
 
-azimut, altura = calcular_posicion_sol_cardedeu(x_tierra, y_tierra, z_tierra, fecha)
+list_azimut = []
+list_altura = []
 
-print(f"--- Vista desde Cardedeu ---")
-print(f"Fecha (UTC): {fecha}")
-print(f"Azimut: {azimut:.2f}° (Donde 90° es Este puro)")
-print(f"Altura: {altura:.2f}° (Si es > 0, el sol ha salido)")
+# --- Bucle de cálculo ---
+plt.figure(figsize=(10, 6))
+for minuto in range(0, 24 * 60, 10): 
+    # 1. Crear la hora local
+    hora_local = datetime.datetime(
+        dia_local.year, dia_local.month, dia_local.day, 0, 0
+    ) + datetime.timedelta(minutes=minuto)
+    
+    # 2. Convertir a UTC 
+    fecha_utc = hora_local - datetime.timedelta(hours=offset_horario)
 
-if 85 < azimut < 95 and altura > -5:
-    print("Resultado coherente: En el equinoccio, el sol sale por el Este.")
+    # 3. Calcular azimut y altura
+    az, alt = calcular_posicion_sol_cardedeu(vector_posicion, fecha_utc)
+    
+    #4. Filtrar
+    if alt > -10:
+        list_azimut.append(az)
+        list_altura.append(alt)
+        if hora_local.minute == 0:
+            plt.plot(az, alt, 'yo', markersize=4, zorder=5)     
+            plt.text(az, alt + 2,
+                    f"{hora_local.strftime('%H:%M')}", 
+                    fontsize=8, 
+                    ha='center')
+
+# --- Graficar ---
+plt.plot(list_azimut, list_altura, label=f'Trayectoria Solar (3 Enero, Hora Local UTC+{offset_horario})', color='orange', linewidth=2)
+plt.axhline(0, color='black', linewidth=1, linestyle='--', alpha=0.6)
+
+label_style = {'color': 'red', 'fontsize': 12, 'fontweight': 'bold', 'ha': 'center', 'va': 'top'}
+plt.text(90, -15 , 'E', **label_style)
+plt.text(180, -15 , 'S', **label_style)
+plt.text(270, -15 , 'O', **label_style)
+
+plt.xlabel("Azimut (Grados)", labelpad=15)
+plt.ylabel("Elevación (Grados)")
+plt.xticks(np.arange(0, 361, 20))
+plt.yticks(np.arange(-10, 91, 10))
+plt.xlim(0, 360)
+plt.ylim(-10, 90)
+
+plt.grid(True, linestyle=':', alpha=0.6)
+plt.legend()
+plt.tight_layout()
+plt.show()

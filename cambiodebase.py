@@ -8,8 +8,8 @@ LAT_CARDEDEU = 41.639852  # Graus Norte
 LON_CARDEDEU = 2.359517   # Graus Este
 
 # Paràmetres Astrodinàmics
-OBLICUIDAD = 23.4392911 # Graus
-LONGITUD_PERIHELIO = 102.9 # Graus 
+OBLIQUITAT = 23.4392911 # Graus
+LONGITUT_PERIHELI = 102.9 # Graus 
 
 # Radi de la Terra en km i Unitat Astronómica 
 RADI_TERRA_KM = 6371.0
@@ -19,7 +19,7 @@ RADI_TERRA_UA = RADI_TERRA_KM / UA_KM
 def calcular_posicio_sol_cardedeu(vector_origen, fecha_utc):  
     # PAS A: CORRECCIÓ DE PERIHELI A VERNAL
     # Matriu rotació Rz (sentit horari)
-    rad_per = np.radians(LONGITUD_PERIHELIO)
+    rad_per = np.radians(LONGITUT_PERIHELI)
     Rz = np.array([ 
         [np.cos(rad_per), -np.sin(rad_per), 0],
         [np.sin(rad_per),  np.cos(rad_per), 0],
@@ -31,7 +31,7 @@ def calcular_posicio_sol_cardedeu(vector_origen, fecha_utc):
 
     # PAS B: ECLÍPTICA -> EQUATORIAL 
     # Matriu rotació Rx (sentit horari)
-    rad_obl = np.radians(OBLICUIDAD)
+    rad_obl = np.radians(OBLIQUITAT)
     Rx= np.array([ 
         [1, 0, 0],
         [0, np.cos(rad_obl), -np.sin(rad_obl)],
@@ -138,7 +138,7 @@ for minut in range(0, 24 * 60, 10):
                     ha='center')
 
 # --- Gràfica ---
-plt.plot(list_azimut, list_altura, label=f'Trajectòria Solar (3 Enero, Hora Local UTC+{offset_horari})', color='orange', linewidth=2)
+plt.plot(list_azimut, list_altura, label=f'Trajectòria Solar (3 Gener, Hora Local UTC+{offset_horari})', color='orange', linewidth=2)
 plt.axhline(0, color='black', linewidth=1, linestyle='--', alpha=0.6)
 
 label_style = {'color': 'red', 'fontsize': 12, 'fontweight': 'bold', 'ha': 'center', 'va': 'top'}

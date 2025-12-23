@@ -41,14 +41,14 @@ def calcular_posicio_sol_cardedeu(vector_origen, fecha_utc):
     # Vector en coordenades Equatorials 
     r_eq = np.dot(Rx, -r_sol)
 
-    # PAS C.1: TEMPS SIDERI LOCAL 
+    # PAS C.1: TEMPS SIDERI LOCAL: formules a la bibliografia (veure informe) 
     year, month, day = fecha_utc.year, fecha_utc.month, fecha_utc.day
     hour, minute, second = fecha_utc.hour, fecha_utc.minute, fecha_utc.second
     UT = hour + (minute/60) + (second/3600) # Hora universal!
     term1 = 367 * year
     term2 = int((7 * (year + int((month + 9) / 12))) / 4)
     term3 = int((275 * month) / 9)
-    J0 = term1 - term2 + term3 + day + 1721013.5
+    J0 = term1 - term2 + term3 + day + 1721013.5 
 
     J2000 = 2451545.0
     T0 = (J0 - J2000) / 36525.0
@@ -59,7 +59,7 @@ def calcular_posicio_sol_cardedeu(vector_origen, fecha_utc):
     
     Theta_G = Theta_G0 + 360.98564724 * (UT / 24.0)
     Theta_L = Theta_G + LON_CARDEDEU
-    Theta_L = Theta_L % 360.0
+    Theta_L = Theta_L % 360.0 # mod 360
    
     # PAS C.2: EQUATORIAL -> TOPOCENTRICA 
     # Matriu rotació Rz (sentit antihorari)

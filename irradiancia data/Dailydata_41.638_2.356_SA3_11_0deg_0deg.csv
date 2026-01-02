@@ -1,0 +1,38 @@
+Latitude (decimal degrees):	41.638
+Longitude (decimal degrees):	2.356
+Radiation database:	PVGIS-SARAH3
+
+Results for:	November
+Slope of plane (deg.):	0
+Azimuth (orientation) of plane (deg.):	0
+time(UTC)		G(i)		Gb(i)		Gd(i)
+00:00		0.0		0.0		0.0
+01:00		0.0		0.0		0.0
+02:00		0.0		0.0		0.0
+03:00		0.0		0.0		0.0
+04:00		0.0		0.0		0.0
+05:00		0.0		0.0		0.0
+06:00		0.0		0.0		0.0
+07:00		32.56		13.32		19.24
+08:00		155.45		82.98		72.48
+09:00		265.3		161.32		103.98
+10:00		350.15		219.05		131.09
+11:00		387.55		248.08		139.47
+12:00		386.46		243.44		143.02
+13:00		338.22		206.43		131.79
+14:00		254.64		146.99		107.65
+15:00		147.27		78.73		68.55
+16:00		19.96		7.6		12.35
+17:00		0.0		0.0		0.0
+18:00		0.0		0.0		0.0
+19:00		0.0		0.0		0.0
+20:00		0.0		0.0		0.0
+21:00		0.0		0.0		0.0
+22:00		0.0		0.0		0.0
+23:00		0.0		0.0		0.0
+
+G(i):  Global irradiance on a fixed plane (W/m2)
+Gb(i): Direct irradiance on a fixed plane (W/m2)
+Gd(i): Diffuse irradiance on a fixed plane (W/m2)
+
+PVGIS (c) European Union, 2001-2026

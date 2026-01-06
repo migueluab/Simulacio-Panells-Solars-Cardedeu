@@ -1,0 +1,38 @@
+Latitude (decimal degrees):	41.638
+Longitude (decimal degrees):	2.356
+Radiation database:	PVGIS-SARAH3
+
+Results for:	July
+Slope of plane (deg.):	0
+Azimuth (orientation) of plane (deg.):	0
+time(UTC)		G(i)		Gb(i)		Gd(i)
+00:00		0.0		0.0		0.0
+01:00		0.0		0.0		0.0
+02:00		0.0		0.0		0.0
+03:00		0.0		0.0		0.0
+04:00		0.0		0.0		0.0
+05:00		43.68		13.49		30.19
+06:00		185.44		93.65		91.79
+07:00		351.81		215.37		136.44
+08:00		510.87		336.28		174.58
+09:00		648.73		444.63		204.1
+10:00		755.46		533.9		221.56
+11:00		820.46		595.02		225.44
+12:00		844.72		625.53		219.19
+13:00		804.74		586.96		217.78
+14:00		723.4		517.43		205.96
+15:00		605.12		419.09		186.03
+16:00		437.28		278.12		159.15
+17:00		266.71		147.44		119.27
+18:00		114.67		48.63		66.04
+19:00		3.39		0.0		3.39
+20:00		0.0		0.0		0.0
+21:00		0.0		0.0		0.0
+22:00		0.0		0.0		0.0
+23:00		0.0		0.0		0.0
+
+G(i):  Global irradiance on a fixed plane (W/m2)
+Gb(i): Direct irradiance on a fixed plane (W/m2)
+Gd(i): Diffuse irradiance on a fixed plane (W/m2)
+
+PVGIS (c) European Union, 2001-2026

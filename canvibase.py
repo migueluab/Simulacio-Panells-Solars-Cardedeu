@@ -1,6 +1,7 @@
 import numpy as np
 import datetime
 import matplotlib.pyplot as plt
+import trajectoria
 
 # --- CONFIGURACIÓ ---
 # Coordenades aproximades de Cardedeu
@@ -16,7 +17,7 @@ RADI_TERRA_KM = 6371.0
 UA_KM = 149597870.7
 RADI_TERRA_UA = RADI_TERRA_KM / UA_KM
 
-def calcular_posicio_sol_cardedeu(vector_origen, fecha_utc):  
+def posiciosol(vector_origen, fecha_utc):  
     # PAS A: CORRECCIÓ DE PERIHELI A VERNAL
     # Matriu rotació Rz (sentit horari)
     rad_per = np.radians(LONGITUT_PERIHELI)
@@ -95,67 +96,3 @@ def calcular_posicio_sol_cardedeu(vector_origen, fecha_utc):
     az = (180 - az) % 360
     
     return az, h
-
-# --- EJEMPLO---
-# Suposem que estem en el periheli (3 de Gener)
-# Coordenades de la terra (UA)
-x_tierra = 1.0 
-y_tierra = 0.0
-z_tierra = 0.0
-vector_posicio = np.array([x_tierra, y_tierra, z_tierra])
-
-# --- Configuració Inicial ---
-# Definim el dia local (ex: 3 de Gener de 2026)
-dia_local = datetime.date(2026, 1, 3) 
-offset_horari = 1  # Espanya a l'hivern és UTC+1 (a l'estiu +2)
-
-list_azimut = []
-list_altura = []
-
-# --- Bucle ---
-plt.figure(figsize=(10, 6))
-for minut in range(0, 24 * 60, 10): 
-    # 1. Crear l'hora local
-    hora_local = datetime.datetime(
-        dia_local.year, dia_local.month, dia_local.day, 0, 0
-    ) + datetime.timedelta(minutes=minut)
-    
-    # 2. Convertir a UTC 
-    data_utc = hora_local - datetime.timedelta(hours=offset_horari)
-
-    # 3. Calcular azimut i alçada
-    az, alt = calcular_posicio_sol_cardedeu(vector_posicio, data_utc)
-    
-    #4. Filtrar
-    if alt > -10:
-        list_azimut.append(az)
-        list_altura.append(alt)
-        if hora_local.minute == 0:
-            plt.plot(az, alt, 'yo', markersize=4, zorder=5)     
-            plt.text(az, alt + 2,
-                    f"{hora_local.strftime('%H:%M')}", 
-                    fontsize=8, 
-                    ha='center')
-
-# --- Gràfica ---
-plt.plot(list_azimut, list_altura, label=f'Trajectòria Solar (3 Gener, Hora Local UTC+{offset_horari})', color='orange', linewidth=2)
-plt.axhline(0, color='black', linewidth=1, linestyle='--', alpha=0.6)
-
-label_style = {'color': 'red', 'fontsize': 12, 'fontweight': 'bold', 'ha': 'center', 'va': 'top'}
-plt.text(90, -15 , 'E', **label_style)
-plt.text(180, -15 , 'S', **label_style)
-plt.text(270, -15 , 'O', **label_style)
-
-plt.xlabel("Azimut (Graus)", labelpad=15)
-plt.ylabel("Elevació (Graus)")
-plt.xticks(np.arange(0, 361, 20))
-plt.yticks(np.arange(-10, 91, 10))
-plt.xlim(0, 360)
-plt.ylim(-10, 90)
-
-plt.grid(True, linestyle=':', alpha=0.6)
-plt.legend()
-plt.tight_layout()
-plt.gca().tick_params(direction="in")
-plt.savefig('figures/trajectoriasolar.png', bbox_inches='tight')
-plt.show()

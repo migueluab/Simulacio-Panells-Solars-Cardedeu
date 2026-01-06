@@ -1,0 +1,38 @@
+Latitude (decimal degrees):	41.638
+Longitude (decimal degrees):	2.356
+Radiation database:	PVGIS-SARAH3
+
+Results for:	September
+Slope of plane (deg.):	0
+Azimuth (orientation) of plane (deg.):	0
+time(UTC)		G(i)		Gb(i)		Gd(i)
+00:00		0.0		0.0		0.0
+01:00		0.0		0.0		0.0
+02:00		0.0		0.0		0.0
+03:00		0.0		0.0		0.0
+04:00		0.0		0.0		0.0
+05:00		0.0		0.0		0.0
+06:00		55.05		19.31		35.74
+07:00		200.38		101.29		99.09
+08:00		353.29		205.78		147.5
+09:00		479.79		295.66		184.13
+10:00		567.64		349.18		218.46
+11:00		624.17		385.81		238.35
+12:00		636.27		410.03		226.24
+13:00		594.65		387.24		207.41
+14:00		488.96		299.85		189.11
+15:00		371.44		215.21		156.24
+16:00		220.43		110.76		109.67
+17:00		79.66		31.03		48.63
+18:00		0.69		0.0		0.69
+19:00		0.0		0.0		0.0
+20:00		0.0		0.0		0.0
+21:00		0.0		0.0		0.0
+22:00		0.0		0.0		0.0
+23:00		0.0		0.0		0.0
+
+G(i):  Global irradiance on a fixed plane (W/m2)
+Gb(i): Direct irradiance on a fixed plane (W/m2)
+Gd(i): Diffuse irradiance on a fixed plane (W/m2)
+
+PVGIS (c) European Union, 2001-2026

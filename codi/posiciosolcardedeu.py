@@ -110,7 +110,7 @@ for minut in range(0, 24 * 60, 10):
                     ha='center')
 
 # --- Gràfica --- #
-plt.plot(az_plot, alt_plot, label=f'Trajectòria Solar ({data_utc_plot.strftime("%Y-%m-%d")} Hora Local UTC+{offset_horari_plot})', color='orange', linewidth=2)
+plt.plot(az_plot, alt_plot, label=f'Trajectòria Solar ({data_utc_plot.strftime("%Y-%m-%d")}) Hora Local UTC+{offset_horari_plot})', color='orange', linewidth=2)
 plt.axhline(0, color='black', linewidth=1, linestyle='--', alpha=0.6)
 
 label_style = {'color': 'red', 'fontsize': 12, 'fontweight': 'bold', 'ha': 'center', 'va': 'top'}
@@ -130,4 +130,3 @@ plt.legend()
 plt.tight_layout()
 plt.gca().tick_params(direction="in")
 plt.savefig(f'figures/trajectoriasolar({data_utc_plot.strftime("%Y-%m-%d")}).png', bbox_inches='tight')
-plt.show()

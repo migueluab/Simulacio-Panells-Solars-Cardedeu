@@ -17,7 +17,27 @@ RADI_TERRA_KM = 6371.0
 UA_KM = 149597870.7
 RADI_TERRA_UA = RADI_TERRA_KM / UA_KM
 
-def posiciosol(vector_origen, fecha_utc):  
+def calcular_temps_sideral_greenwich(fecha_utc: datetime.datetime) -> float:
+    # TEMPS SIDERI LOCAL: formules a la bibliografia (veure informe) 
+    year, month, day = fecha_utc.year, fecha_utc.month, fecha_utc.day
+    hour, minute, second = fecha_utc.hour, fecha_utc.minute, fecha_utc.second
+    UT = hour + (minute/60) + (second/3600) # Hora universal!
+    term1 = 367 * year
+    term2 = int((7 * (year + int((month + 9) / 12))) / 4)
+    term3 = int((275 * month) / 9)
+    J0 = term1 - term2 + term3 + day + 1721013.5 
+
+    J2000 = 2451545.0
+    T0 = (J0 - J2000) / 36525.0
+    Theta_G0 = (100.4606184 + 
+                36000.77004 * T0 + 
+                0.000387933 * (T0**2) - 
+                2.583e-8 * (T0**3))
+    
+    Theta_G = Theta_G0 + 360.98564724 * (UT / 24.0)
+    return Theta_G % 360.0
+
+def posiciosol(vector_origen: np.array, fecha_utc: datetime.datetime):  
     # PAS A: CORRECCIÓ DE PERIHELI A VERNAL
     # Matriu rotació Rz (sentit horari)
     rad_per = np.radians(LONGITUT_PERIHELI)
@@ -43,24 +63,8 @@ def posiciosol(vector_origen, fecha_utc):
     r_eq = np.dot(Rx, -r_sol)
 
     # PAS C.1: TEMPS SIDERI LOCAL: formules a la bibliografia (veure informe) 
-    year, month, day = fecha_utc.year, fecha_utc.month, fecha_utc.day
-    hour, minute, second = fecha_utc.hour, fecha_utc.minute, fecha_utc.second
-    UT = hour + (minute/60) + (second/3600) # Hora universal!
-    term1 = 367 * year
-    term2 = int((7 * (year + int((month + 9) / 12))) / 4)
-    term3 = int((275 * month) / 9)
-    J0 = term1 - term2 + term3 + day + 1721013.5 
-
-    J2000 = 2451545.0
-    T0 = (J0 - J2000) / 36525.0
-    Theta_G0 = (100.4606184 + 
-                36000.77004 * T0 + 
-                0.000387933 * (T0**2) - 
-                2.583e-8 * (T0**3))
-    
-    Theta_G = Theta_G0 + 360.98564724 * (UT / 24.0)
-    Theta_L = Theta_G + LON_CARDEDEU
-    Theta_L = Theta_L % 360.0 # mod 360
+    Theta_G = calcular_temps_sideral_greenwich(fecha_utc)
+    Theta_L = (Theta_G + LON_CARDEDEU) % 360.0
    
     # PAS C.2: EQUATORIAL -> TOPOCENTRICA 
     # Matriu rotació Rz (sentit antihorari)

@@ -62,55 +62,75 @@ for dia, x, y, z in zip(dies, x_tierra, y_tierra, z_tierra):
 
 # --- EXEMPLE--- #
 # Grafiquem la posició del sol pel dia que vulguem
-plt.figure(figsize=(10, 6))
 
-# --- Configuració Inicial ---
-#Escollim el dia
-mes_input = int(input('Mes:'))
-dia_input = int(input('Dia:'))
-data_plot = datetime.date(2026, mes_input, dia_input)
+def corba_posicio(mes, dia):
+    # --- Configuració Inicial ---
+    #Escollim el dia
+
+    data_plot = datetime.date(2026, mes, dia)
 
 
-# Calculem la diferencia de dies respecte el periheli
-delta = data_plot - dia_periheli
+    # Calculem la diferencia de dies respecte el periheli
+    delta = data_plot - dia_periheli
 
-# Coordenades de la terra en aquest dia (UA)
-vector_posicio_plot = np.array([x_tierra[delta.days], y_tierra[delta.days], z_tierra[delta.days]])
+    # Coordenades de la terra en aquest dia (UA)
+    vector_posicio_plot = np.array([x_tierra[delta.days], y_tierra[delta.days], z_tierra[delta.days]])
 
-az_plot = []
-alt_plot = []
+    az_plot = []
+    alt_plot = []
 
-# --- Bucle --- #
-for minut in range(0, 24 * 60, 10):
-    # 1. Crear l'hora local
-    hora_local_plot = datetime.datetime(
-            data_plot.year, data_plot.month, data_plot.day, 0, 0
-        ) + datetime.timedelta(minutes=minut)
+    az_ticks = []
+    alt_ticks = []
+    hora_tick = []
 
-    # 2. Convertir a UTC
-    if data_plot > datetime.date(2026, 3, 29) and data_plot < datetime.date(2026, 10, 26):
-        offset_horari_plot = 2
-    else: 
-        offset_horari_plot = 1
+    # --- Bucle --- #
+    for minut in range(0, 24 * 60, 10):
+        # 1. Crear l'hora local
+        hora_local_plot = datetime.datetime(
+                data_plot.year, data_plot.month, data_plot.day, 0, 0
+            ) + datetime.timedelta(minutes=minut)
 
-    data_utc_plot = hora_local_plot - datetime.timedelta(hours=offset_horari_plot)
+        # 2. Convertir a UTC
+        if data_plot > datetime.date(2026, 3, 29) and data_plot < datetime.date(2026, 10, 26):
+            offset_horari_plot = 2
+        else: 
+            offset_horari_plot = 1
 
-    # 3. Calcular azimut i alçada
-    az, alt = posiciosol(vector_posicio_plot, data_utc_plot)
+        data_utc_plot = hora_local_plot - datetime.timedelta(hours=offset_horari_plot)
 
-    #4. Filtrar
-    if alt > -10:
-        az_plot.append(az)
-        alt_plot.append(alt)
-        if hora_local_plot.minute == 0:
-            plt.plot(az, alt, 'yo', markersize=4, zorder=5)     
-            plt.text(az, alt + 2,
-                    f"{hora_local_plot.strftime('%H:%M')}", 
-                    fontsize=8, 
-                    ha='center')
+        # 3. Calcular azimut i alçada
+        az, alt = posiciosol(vector_posicio_plot, data_utc_plot)
+
+        #4. Filtrar
+        if alt > -10:
+            az_plot.append(az)
+            alt_plot.append(alt)
+            if hora_local_plot.minute == 0:
+                 az_ticks.append(az)
+                 alt_ticks.append(alt)
+                 hora_tick.append(hora_local_plot)
+
+
+    return [az_plot, alt_plot], [az_ticks, alt_ticks, hora_tick], [hora_local_plot, data_utc_plot, offset_horari_plot]
 
 # --- Gràfica --- #
-plt.plot(az_plot, alt_plot, label=f'Trajectòria Solar ({data_utc_plot.strftime("%Y-%m-%d")}) Hora Local UTC+{offset_horari_plot})', color='orange', linewidth=2)
+plt.figure(figsize=(10, 6))
+
+mesos = {"Gener": 1, "Febrer": 2, "Març": 3, "Abril": 4, "Maig": 5, "Juny": 6, "Juliol": 7, "Agost": 8, "Septembre": 9, 
+         "Octubre": 10, "Novembre": 11, "Desembre": 12} #Diccionari amb els noms dels mesos
+
+#Fem una corba pel primer de cada mes
+for key, val in mesos.items():
+    if val % 2 != 0:
+        corba, ticks, hores = corba_posicio(val, 1)
+        for az, alt, hora in zip(ticks[0], ticks[1],ticks[2]):
+            plt.plot(az, alt, 'yo', markersize=4, zorder=5)     
+            plt.text(az, alt,
+                f"{hora.strftime('%H:%M')}", 
+                fontsize=8, 
+                ha='center')    
+        plt.plot(corba[0], corba[1], label=f'Trajectòria Solar (1 de {key}, UTC+{hores[2]})', color='orange', linewidth=2)
+
 plt.axhline(0, color='black', linewidth=1, linestyle='--', alpha=0.6)
 
 label_style = {'color': 'red', 'fontsize': 12, 'fontweight': 'bold', 'ha': 'center', 'va': 'top'}
@@ -129,4 +149,4 @@ plt.grid(True, linestyle=':', alpha=0.6)
 plt.legend()
 plt.tight_layout()
 plt.gca().tick_params(direction="in")
-plt.savefig(f'figures/trajectoriasolar({data_utc_plot.strftime("%Y-%m-%d")}).png', bbox_inches='tight')
+plt.savefig(f'figures/trajectoriasolar.png', bbox_inches='tight')

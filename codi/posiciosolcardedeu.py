@@ -5,7 +5,6 @@ import trajectoria
 from canvibase import posiciosol
 
 #--- DADES TRAJECTÒRIA TERRA --- #
-
 x_tierra = trajectoria.x 
 y_tierra = trajectoria.y
 z_tierra = np.array([0.0] * x_tierra.size)
@@ -14,7 +13,7 @@ z_tierra = np.array([0.0] * x_tierra.size)
 # Definim el dia del periheli (Considerem que és el 3 de Gener de 2026)
 dia_periheli = datetime.date(2026, 1, 3) 
 
-#Fem una llista amb els dies fins el 3 de gener de 2027
+# Fem una llista amb els dies fins el 3 de gener de 2027
 numdies = 366
 dies = [dia_periheli + datetime.timedelta(days=x) for x in range(numdies)]
 
@@ -58,17 +57,13 @@ for dia, x, y, z in zip(dies, x_tierra, y_tierra, z_tierra):
     lists_altures.append(list_altura)
     lists_minuts.append(list_minuts)
 
-
-
 # --- EXEMPLE--- #
 # Grafiquem la posició del sol pel dia que vulguem
 
 def corba_posicio(mes, dia):
     # --- Configuració Inicial ---
     #Escollim el dia
-
     data_plot = datetime.date(2026, mes, dia)
-
 
     # Calculem la diferencia de dies respecte el periheli
     delta = data_plot - dia_periheli
@@ -119,7 +114,7 @@ plt.figure(figsize=(10, 6))
 mesos = {"Gener": 1, "Febrer": 2, "Març": 3, "Abril": 4, "Maig": 5, "Juny": 6, "Juliol": 7, "Agost": 8, "Septembre": 9, 
          "Octubre": 10, "Novembre": 11, "Desembre": 12} #Diccionari amb els noms dels mesos
 
-#Fem una corba pel primer de cada mes
+#Fem una corba pel primer de cada dos mesos
 for key, val in mesos.items():
     if val % 2 != 0:
         corba, ticks, hores = corba_posicio(val, 1)
@@ -129,7 +124,7 @@ for key, val in mesos.items():
                 f"{hora.strftime('%H:%M')}", 
                 fontsize=8, 
                 ha='center')    
-        plt.plot(corba[0], corba[1], label=f'Trajectòria Solar (1 de {key}, UTC+{hores[2]})', color='orange', linewidth=2)
+        plt.plot(corba[0], corba[1], label=f'1 de {key}, UTC+{hores[2]}', linewidth=2)
 
 plt.axhline(0, color='black', linewidth=1, linestyle='--', alpha=0.6)
 
@@ -146,7 +141,7 @@ plt.xlim(0, 360)
 plt.ylim(-10, 90)
 
 plt.grid(True, linestyle=':', alpha=0.6)
-plt.legend()
+plt.legend(loc='upper right', framealpha=0.9, shadow=True)
 plt.tight_layout()
 plt.gca().tick_params(direction="in")
 plt.savefig(f'figures/trajectoriasolar.png', bbox_inches='tight')

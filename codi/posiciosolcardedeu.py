@@ -86,7 +86,7 @@ def corba_posicio(mes, dia):
             ) + datetime.timedelta(minutes=minut)
 
         # 2. Convertir a UTC
-        if data_plot > datetime.date(2026, 3, 29) and data_plot < datetime.date(2026, 10, 26):
+        if data_plot >= datetime.date(2026, 3, 29) and data_plot < datetime.date(2026, 10, 26):
             offset_horari_plot = 2
         else: 
             offset_horari_plot = 1
@@ -124,7 +124,7 @@ for key, val in mesos.items():
                 f"{hora.strftime('%H:%M')}", 
                 fontsize=8, 
                 ha='center')    
-        plt.plot(corba[0], corba[1], label=f'1 de {key}, UTC+{hores[2]}', linewidth=2)
+        plt.plot(corba[0], corba[1], label=f'1 de {key}, Hora local (UTC+{hores[2]})', linewidth=2)
 
 plt.axhline(0, color='black', linewidth=1, linestyle='--', alpha=0.6)
 

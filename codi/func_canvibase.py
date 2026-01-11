@@ -1,6 +1,5 @@
 import numpy as np
 import datetime
-import matplotlib.pyplot as plt
 
 # --- CONFIGURACIÓ ---
 # Coordenades aproximades de Cardedeu

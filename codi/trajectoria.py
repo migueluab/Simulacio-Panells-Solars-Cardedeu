@@ -65,6 +65,11 @@ while Y[0] < 2*np.pi:
 t_i = t_i * (r_per/v_per)
 dies = t_i/(24*60*60)
 
+# Càlcul d'excentritat 
+r_max = np.max(r)
+r_min = np.min(r)
+
+e = (r_max - r_min)/(r_max+r_min)
 #Passem a coordenades cartesianes i unitats astronòmiques(UA)
 theta = np.array(theta)
 r = np.array(r) * r_per / UA
@@ -84,7 +89,6 @@ plt.axis('equal')
 plt.grid(True, linestyle='--', alpha=0.3)
 plt.xlabel('x (UA)')
 plt.ylabel('y (UA)')
-plt.title('Òrbita Terrestre')
 plt.legend(loc = 'upper left', fontsize = 10)
 plt.tight_layout()
 plt.savefig('figures/trajectoriaterra.png', bbox_inches='tight')

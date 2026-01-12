@@ -1,12 +1,10 @@
 import numpy as np
 import datetime
-import matplotlib.pyplot as plt
-import trajectoria
 
 # --- CONFIGURACIÓ ---
 # Coordenades aproximades de Cardedeu
-LAT_CARDEDEU = 41.639852  # Graus Norte
-LON_CARDEDEU = 2.359517   # Graus Este
+LAT_CARDEDEU = 41.639852  # Graus Nord
+LON_CARDEDEU = 2.359517   # Graus Est
 
 # Paràmetres Astrodinàmics
 OBLIQUITAT = 23.4392911 # Graus
@@ -62,7 +60,7 @@ def posiciosol(vector_origen: np.array, fecha_utc: datetime.datetime):
     # Vector en coordenades Equatorials 
     r_eq = np.dot(Rx, -r_sol)
 
-    # PAS C.1: TEMPS SIDERI LOCAL: formules a la bibliografia (veure informe) 
+    # PAS C.1: TEMPS SIDERI LOCAL
     Theta_G = calcular_temps_sideral_greenwich(fecha_utc)
     Theta_L = (Theta_G + LON_CARDEDEU) % 360.0
    

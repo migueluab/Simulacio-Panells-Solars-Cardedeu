@@ -156,8 +156,3 @@ plt.ylabel("Energia Total Anual (kWh)", fontsize=12)
 plt.legend()
 plt.tight_layout()
 plt.savefig('figures/optimitzacio_beta.png')
-
-
-
-plt.gca().tick_params(direction="in")
-plt.savefig(f'figures/energia.png', bbox_inches='tight')

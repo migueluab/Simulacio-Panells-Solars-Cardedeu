@@ -36,6 +36,15 @@ def derivades(t, Y):
     
     return np.array([dtheta_dt, dr_dt, dv_dt])
 
+def calcular_energia(Y):
+    theta, r, v = Y
+    # v és la velocitat radial (dr/dt)
+    # la velocitat angular tangencial és v_theta = l/r
+    ec_radial = 0.5 * v**2
+    ec_angular = 0.5 * (l / r)**2
+    potencial = k / r
+    return ec_radial + ec_angular + potencial
+
 # --- MÈTODE 1: EULER EXPLÍCIT ---
 def pas_euler_explicit(f, t, Y, h):
     
@@ -70,12 +79,24 @@ def pas_rk4(f, t, Y, h):
     return Y + h/6 * (k1 + 2*k2 + 2*k3 + k4)
 
 #bucle de simulació
-
 #preparem les dades per a cada mètode
+E0 = calcular_energia(Y_inicial)
 metodes = {
-    "Euler Explícit": {"func": pas_euler_explicit, "Y": Y_inicial.copy(), "t": [], "x": [], "y": [], "color": "red", "style": "--"},
-    "Euler Semi-Implícit": {"func": pas_euler_semi_implicit, "Y": Y_inicial.copy(), "t": [], "x": [], "y": [], "color": "green", "style": "-."},
-    "RK4 (Referència)": {"func": pas_rk4, "Y": Y_inicial.copy(), "t": [], "x": [], "y": [], "color": "blue", "style": "-"}
+    "Euler Explícit": {
+        "func": pas_euler_explicit, "Y": Y_inicial.copy(), 
+        "t": [], "x": [], "y": [], "error": [], # <--- AFEGIT "error": []
+        "color": "red", "style": "--"
+    },
+    "Euler Semi-Implícit": {
+        "func": pas_euler_semi_implicit, "Y": Y_inicial.copy(), 
+        "t": [], "x": [], "y": [], "error": [], # <--- AFEGIT "error": []
+        "color": "green", "style": "-."
+    },
+    "RK4 (Referència)": {
+        "func": pas_rk4, "Y": Y_inicial.copy(), 
+        "t": [], "x": [], "y": [], "error": [], # <--- AFEGIT "error": []
+        "color": "blue", "style": "-"
+    }
 }
 
 #simulem una mica més d'un any (per veure si l'òrbita es tanca)
@@ -99,6 +120,11 @@ while t_actual < t_total_adim:
         dades["y"].append(y_i)
         dades["t"].append(t_actual)
         
+        #CÀLCUL DE L'ERROR D'ENERGIA
+        E_actual = calcular_energia(dades["Y"])
+        error_relatiu = abs((E_actual - E0) / E0)
+        dades["error"].append(error_relatiu)
+
         #fem el pas
         if nom == "Euler Semi-Implícit":
             dades["Y"] = pas_euler_semi_implicit(t_actual, dades["Y"], h)
@@ -108,21 +134,33 @@ while t_actual < t_total_adim:
     t_actual += h
 
 #gràfiques
-plt.figure(figsize=(10, 8))
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7))
 
-#dibuixem el Sol
-plt.plot(0, 0, 'o', color='gold', markersize=15, label='Sol', markeredgecolor='orange')
-
-#dibuixem les trajectòries
+#gràfic trajectòries
+ax1.plot(0, 0, 'o', color='gold', markersize=15, label='Sol', markeredgecolor='orange')
 for nom, dades in metodes.items():
-    plt.plot(dades["x"], dades["y"], label=nom, color=dades["color"], linestyle=dades["style"], linewidth=1.5)
+    ax1.plot(dades["x"], dades["y"], label=nom, color=dades["color"], linestyle=dades["style"], linewidth=1.5)
 
-plt.title(f"Comparativa Mètodes Numèrics (Pas h = 1 dia aprox)")
-plt.xlabel("Distància x (UA)")
-plt.ylabel("Distància y (UA)")
-plt.axis('equal')
-plt.grid(True, alpha=0.3)
-plt.legend()
+ax1.set_title("Comparativa Trajectòries")
+ax1.set_xlabel("x (UA)")
+ax1.set_ylabel("y (UA)")
+ax1.axis('equal')
+ax1.grid(True, alpha=0.3)
+ax1.legend()
 
-plt.savefig('figures/comparativa_metodes.png', bbox_inches='tight')
+#gràfic error d'Energia (Escala Logarítmica)
+for nom, dades in metodes.items():
+    #convertim el temps a dies
+    temps_dies = np.array(dades["t"]) * (r_per/v_per) / (24*3600)
+    ax2.plot(temps_dies, dades["error"], label=nom, color=dades["color"], linestyle=dades["style"])
+
+ax2.set_title("Error Relatiu d'Energia (Conservació)")
+ax2.set_xlabel("Temps (dies)")
+ax2.set_ylabel("|(E - E0) / E0|")
+ax2.set_yscale('log')
+ax2.grid(True, which="both", ls="-", alpha=0.3)
+ax2.legend()
+
+plt.tight_layout()
+plt.savefig('figures/comparativa_error_metodes.png', bbox_inches='tight')
 plt.show()

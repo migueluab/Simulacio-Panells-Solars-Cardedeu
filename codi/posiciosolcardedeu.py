@@ -7,7 +7,6 @@ from func_canvibase import posiciosol
 #--- DADES TRAJECTÒRIA TERRA --- #
 x_tierra = trajectoria.x 
 y_tierra = trajectoria.y
-#numpy zeros és més ràpid i net
 z_tierra = np.zeros(len(x_tierra))
 
 # --- Configuració Inicial --- #

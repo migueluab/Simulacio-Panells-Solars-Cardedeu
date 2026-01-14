@@ -59,16 +59,13 @@ for dia, x, y, z in zip(dies, x_tierra, y_tierra, z_tierra):
     lists_minuts.append(list_minuts)
 
 
-# Suposem que les plaques estan paral·leles al terra
-# Angle que formen vector normal a la placa i vector posicio sol: alçada
+# --- PARÀMETRES DEL PROBLEMA --- #
 I_d = 1362 # Constant solar (W/m^2)
-A = 2 #Àrea de les plaques (m^2)
-N = 4 #Nombre de plaques
-potencia_maxima_panel = 400 #Potència pic per panel (W)
+A = 2 # Àrea de les plaques (m^2)
+N = 4 # Nombre de plaques
+potencia_maxima_panel = 400 # Potència pic per panel (W)
 
 # --- INICIALITZACIÓ --- #
-# Convertim les llistes en arrays de objectes per iterar més fàcil si no són rectangulars
-# Si totes les llistes tenen la mateixa longitud, seria millor fer un array 2D directament
 beta_provar = np.arange(0, 91, 1)
 t = np.arange(1, 366, 1)
 gamma = np.radians(180) #Per conveniencia asumiré que l'orientació de les plaques es de 180, ja que quan el sol està al punt més alt azimut és a 180
@@ -76,7 +73,7 @@ Energia_diaria_Wh = [] #Guardarem energia en Watt-hora, no només potència inst
 
 Energia_total = []
 
-# --- BUCLE ---+
+# --- BUCLE ---
 for beta_provada in beta_provar:
     beta_rad = np.radians(beta_provada)
     Energia_acum = 0
@@ -85,18 +82,17 @@ for beta_provada in beta_provar:
         altures = np.array(alt_list) 
         azimuts = np.array(az_list) 
         
-        # Filtramos valores positivos, solo queremos valores de dia
+        # Filtrem valors positius, nomès volem valors de dia
         mask = altures > 0
         
-        # Eliminamos los valores de las alturas y azimutales para cuando no es de dia
+        # Eliminem els valors de les altures i azimutals per a quan no és de dia
         rad_altures = np.radians(altures[mask])
         rad_az = np.radians(azimuts[mask])
 
-        # Fórmula del coseno incidente
+        # Fórmula del cosinus incident
         cos_inc = (np.sin(rad_altures)* np.cos(beta_rad) + np.cos(rad_altures) * np.sin(beta_rad) * np.cos(rad_az - gamma))  
 
         irradiancia = I_d * np.maximum(cos_inc, 0 ) # Càlcul de irradiància (W/m^2), utilitzem np.maximum per a evitar obtenir valors negatius.
-        
         
         potencia_inst = irradiancia*(potencia_maxima_panel*N/1000) # Potència bruta
         potencia_real = np.minimum(potencia_inst, potencia_maxima_panel*N) # Si la potencia supera el màxim de les plaques, es retalla

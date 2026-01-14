@@ -21,8 +21,6 @@ theta0 = 0
 Y_inicial = np.array([theta0, r0, v0])
 
 #pas temporal (h)
-#per veure bé els errors dels mètodes dolents, potser caldria un h més petit ???
-#mantindrem l'original per comparar honestament.
 h = 3600 * 24 * v_per / r_per 
 
 #equacions

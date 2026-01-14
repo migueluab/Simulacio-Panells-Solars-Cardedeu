@@ -65,14 +65,11 @@ while Y[0] < 2*np.pi:
 t_i = t_i * (r_per/v_per)
 dies = t_i/(24*60*60)
 
-# Càlcul d'excentritat 
+#Càlcul d'excentritat 
 r_max = np.max(r) * r_per / UA
 r_min = np.min(r) * r_per / UA
 
-
-
 e = (r_max - r_min)/(r_max+r_min)
-
 print(r_max, r_min, e)
 
 #Passem a coordenades cartesianes i unitats astronòmiques(UA)

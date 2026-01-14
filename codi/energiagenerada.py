@@ -2,6 +2,7 @@ import numpy as np
 import datetime
 import matplotlib.pyplot as plt
 import trajectoria
+import matplotlib.dates as mdates
 from func_canvibase import posiciosol
 
 #--- DADES TRAJECTÒRIA TERRA --- #
@@ -14,7 +15,7 @@ z_tierra = np.array([0.0] * x_tierra.size)
 dia_periheli = datetime.date(2026, 1, 3) 
 
 # Fem una llista amb els dies fins el 3 de gener de 2027
-numdies = 366
+numdies = 365
 dies = [dia_periheli + datetime.timedelta(days=x) for x in range(numdies)]
 
 lists_azimuts = []
@@ -133,17 +134,21 @@ for alt_list, az_list in zip(lists_altures, lists_azimuts):
     # Guardem l'energia de cada dia
     Energia_dia_op.append(np.sum(potencia_real) * (10.0 / 60.0))
 
-dies_any = np.arange(1, len(Energia_dia_op) + 1)
 
 plt.figure(figsize=(10, 6))
-plt.plot(dies_any, np.array(Energia_dia_op)/1000, color='orange', label=f'Inclinació {millor_beta}º')
+plt.plot(dies, np.array(Energia_dia_op)/1000, color='orange', label=f'Inclinació {millor_beta}º')
 
-plt.xlabel("Dia de l'any", fontsize=12)
+ax = plt.gca()
+ax.xaxis.set_major_locator(mdates.MonthLocator())
+ax.xaxis.set_major_formatter(mdates.DateFormatter('%b'))
+
+plt.xlabel("Data de l'any", fontsize=12)
 plt.ylabel("Energia Diària (kWh)", fontsize=12)
 plt.grid(True, linestyle='--', alpha=0.5)
 plt.legend()
 plt.tight_layout()
 plt.savefig('figures/produccio_anual_optima.png')
+plt.show()
 
 plt.figure(figsize=(10, 6))
 plt.plot(beta_provar, np.array(Energia_total)/1000, color='blue', linewidth=2)

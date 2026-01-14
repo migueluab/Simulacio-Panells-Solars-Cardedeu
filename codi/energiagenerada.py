@@ -130,10 +130,11 @@ for alt_list, az_list in zip(lists_altures, lists_azimuts):
     # Guardem l'energia de cada dia
     Energia_dia_op.append(np.sum(potencia_real) * (10.0 / 60.0))
 
-
+# Creació de gràfica de l'energia del dia a dia amb l'angle òptim
 plt.figure(figsize=(10, 6))
 plt.plot(dies, np.array(Energia_dia_op)/1000, color='orange', label=f'Inclinació {millor_beta}º')
 
+# Cambio a formato de dias y meses
 ax = plt.gca()
 ax.xaxis.set_major_locator(mdates.MonthLocator())
 ax.xaxis.set_major_formatter(mdates.DateFormatter('%b'))
@@ -144,8 +145,9 @@ plt.grid(True, linestyle='--', alpha=0.5)
 plt.legend()
 plt.tight_layout()
 plt.savefig('figures/produccio_anual_optima.png')
-plt.show()
 
+
+#Creació de la gràfica amb l'energia generada cada any.
 plt.figure(figsize=(10, 6))
 plt.plot(beta_provar, np.array(Energia_total)/1000, color='blue', linewidth=2)
 plt.axvline(millor_beta, color='red', linestyle='--', label=f'Angle Òptim: {millor_beta}º')

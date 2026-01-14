@@ -68,29 +68,96 @@ potencia_maxima_panel = 400 #Potència pic per panel (W)
 # --- INICIALITZACIÓ --- #
 # Convertim les llistes en arrays de objectes per iterar més fàcil si no són rectangulars
 # Si totes les llistes tenen la mateixa longitud, seria millor fer un array 2D directament
+beta_provar = np.arange(0, 91, 1)
 t = np.arange(1, 366, 1)
+gamma = np.radians(180) #Per conveniencia asumiré que l'orientació de les plaques es de 180, ja que quan el sol està al punt més alt azimut és a 180
 Energia_diaria_Wh = [] #Guardarem energia en Watt-hora, no només potència instantànea.
 
-# --- BUCLE ---
-for alt_list, min_list in zip(lists_altures, lists_minuts):
-    altures = np.array(alt_list) # Convertim a arrays de numpy per calcular tot el dia de cop (vectorització)
-    altures = np.maximum(altures, 0) # El sol només aporta energia si està sobre l'horitzó, a més, limitem per evitar valors negaius en el sinus
-    rad_altures = np.radians(altures)
-    irradiancia = I_d*np.sin(rad_altures) # Càlcul de irradiància (W/m^2) sobre el pla horitzontal, utilitzem sin(altura)
-    # Si la placa és plana al terra, la normal és vertical, i l'angle de incidència és 90 - altura.
-    potencia_inst = irradiancia*(potencia_maxima_panel*N/1000) # Potència bruta
-    potencia_real = np.minimum(potencia_inst, potencia_maxima_panel*N) # Si la potencia supera el màxim de les plaques, es retalla
-    energia_dia_wh = np.sum(potencia_real) / 60.0 # Càlcul d'energia diaria en Watt-hora, suposem que cada dada en la llista correspon a un minut de diferència
+Energia_total = []
 
-    Energia_diaria_Wh.append(energia_dia_wh)
+# --- BUCLE ---+
+for beta_provada in beta_provar:
+    beta_rad = np.radians(beta_provada)
+    Energia_acum = 0
+    for alt_list, az_list in zip(lists_altures, lists_azimuts): 
+        
+        altures = np.array(alt_list) 
+        azimuts = np.array(az_list) 
+        
+        # Filtramos valores positivos, solo queremos valores de dia
+        mask = altures > 0
+        
+        # Eliminamos los valores de las alturas y azimutales para cuando no es de dia
+        rad_altures = np.radians(altures[mask])
+        rad_az = np.radians(azimuts[mask])
 
-# --- GRÀFIC --- #
+        # Fórmula del coseno incidente
+        cos_inc = (np.sin(rad_altures)* np.cos(beta_rad) + np.cos(rad_altures) * np.sin(beta_rad) * np.cos(rad_az - gamma))  
+
+        irradiancia = I_d * np.maximum(cos_inc, 0 ) # Càlcul de irradiància (W/m^2), utilitzem np.maximum per a evitar obtenir valors negatius.
+        
+        
+        potencia_inst = irradiancia*(potencia_maxima_panel*N/1000) # Potència bruta
+        potencia_real = np.minimum(potencia_inst, potencia_maxima_panel*N) # Si la potencia supera el màxim de les plaques, es retalla
+        energia_dia_wh = np.sum(potencia_real) * (10 / 60.0) # Càlcul d'energia diaria en Watt-hora
+        Energia_acum +=  energia_dia_wh
+    Energia_total.append(Energia_acum)
+
+Energia_max_anual = np.argmax(Energia_total)
+millor_beta = beta_provar[Energia_max_anual]
+max_energia_wh = Energia_total[Energia_max_anual]
+
+print(f"RESULTAT: L'angle òptim és {millor_beta} graus.")
+print(f"Energia anual estimada: {max_energia_wh/1000:.2f} kWh")
+
+#Tornem a iterar amb l'angle óptim per a veure quanta energia al dia generarem. 
+beta_optim_rad = np.radians(millor_beta)
+Energia_dia_op = []
+
+for alt_list, az_list in zip(lists_altures, lists_azimuts): 
+    altures = np.array(alt_list) 
+    azimuts = np.array(az_list) 
+    
+    mask = altures > 0
+    rad_altures = np.radians(altures[mask])
+    rad_az = np.radians(azimuts[mask])
+
+    cos_inc = (np.sin(rad_altures) * np.cos(beta_optim_rad) + 
+               np.cos(rad_altures) * np.sin(beta_optim_rad) * np.cos(rad_az - gamma))
+    
+    irradiancia = I_d * np.maximum(cos_inc, 0)
+    potencia_inst = irradiancia*(potencia_maxima_panel*N/1000)
+    potencia_real = np.minimum(potencia_inst, potencia_maxima_panel*N)
+    energia_dia_wh_op = np.sum(potencia_real) * (10 / 60.0)
+
+    # Guardem l'energia de cada dia
+    Energia_dia_op.append(np.sum(potencia_real) * (10.0 / 60.0))
+
+dies_any = np.arange(1, len(Energia_dia_op) + 1)
+
 plt.figure(figsize=(10, 6))
+plt.plot(dies_any, np.array(Energia_dia_op)/1000, color='orange', label=f'Inclinació {millor_beta}º')
 
-plt.plot(t, Energia_diaria_Wh)
-#plt.plot(np.arange(0,len(I_abs_horaria[0]), 1), I_abs_horaria[0]) 
-# COMENTARIO A BORRAR: El calculo de la intensidad cada hora no funciona, 
-# pero el de la potencia sí, en verdad no hace falta era solo para comparar con el PVGS
+plt.title(f"Producció Solar Diària Optimitzada (Total: {max_energia_wh/1000:.0f} kWh)", fontsize=14)
+plt.xlabel("Dia de l'any", fontsize=12)
+plt.ylabel("Energia Diària (kWh)", fontsize=12)
+plt.grid(True, linestyle='--', alpha=0.5)
+plt.legend()
+plt.tight_layout()
+plt.savefig('figures/produccio_anual_optima.png')
+
+plt.figure(figsize=(10, 6))
+plt.plot(beta_provar, np.array(Energia_total)/1000, color='blue', linewidth=2)
+plt.axvline(millor_beta, color='red', linestyle='--', label=f'Angle Òptim: {millor_beta}º')
+
+plt.title("Optimització de la Inclinació de les Plaques", fontsize=14)
+plt.xlabel("Angle d'Inclinació (Graus)", fontsize=12)
+plt.ylabel("Energia Total Anual (kWh)", fontsize=12)
+plt.legend()
+plt.tight_layout()
+plt.savefig('figures/optimitzacio_beta.png')
+
+
 
 plt.gca().tick_params(direction="in")
 plt.savefig(f'figures/energia.png', bbox_inches='tight')

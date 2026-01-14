@@ -131,33 +131,17 @@ while t_actual < t_total_adim:
             
     t_actual += h
 
-#gràfiques
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7))
-
-#gràfic trajectòries
-ax1.plot(0, 0, 'o', color='gold', markersize=15, label='Sol', markeredgecolor='orange')
-for nom, dades in metodes.items():
-    ax1.plot(dades["x"], dades["y"], label=nom, color=dades["color"], linestyle=dades["style"], linewidth=1.5)
-
-ax1.set_title("Comparativa Trajectòries")
-ax1.set_xlabel("x (UA)")
-ax1.set_ylabel("y (UA)")
-ax1.axis('equal')
-ax1.grid(True, alpha=0.3)
-ax1.legend()
-
 #gràfic error d'Energia (Escala Logarítmica)
 for nom, dades in metodes.items():
     #convertim el temps a dies
     temps_dies = np.array(dades["t"]) * (r_per/v_per) / (24*3600)
-    ax2.plot(temps_dies, dades["error"], label=nom, color=dades["color"], linestyle=dades["style"])
+    plt.plot(temps_dies, dades["error"], label=nom, color=dades["color"], linestyle=dades["style"])
 
-ax2.set_title("Error Relatiu d'Energia (Conservació)")
-ax2.set_xlabel("Temps (dies)")
-ax2.set_ylabel("|(E - E0) / E0|")
-ax2.set_yscale('log')
-ax2.grid(True, which="both", ls="-", alpha=0.3)
-ax2.legend()
+plt.xlabel("Temps (dies)")
+plt.ylabel("|(E - E0) / E0|")
+plt.yscale('log')
+plt.grid(True, which="both", ls="-", alpha=0.3)
+plt.legend()
 
 plt.tight_layout()
 plt.savefig('figures/comparativa_error_metodes.png', bbox_inches='tight')
